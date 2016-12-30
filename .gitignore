@@ -1,0 +1,8 @@
+# python compiled files
+*.py[cod]
+
+# sqlite database file
+db.sqlite3
+
+# pycharm project files
+.idea/

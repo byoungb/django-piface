@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Living Room</title>
+  <style type="text/css">
+
+  </style>
+</head>
+<body>
+  <form action="" method="post">
+   {% csrf_token %}
+   {% if not is_on %}
+      <button type="submit" name="action" value="on">Turn On</button>
+   {% else %}
+      <button type="submit" name="action" value="off">Turn Off</button>
+   {% endif %}
+  </form>
+</body>
+</html>

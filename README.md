@@ -1,2 +1,2 @@
 # django-piface
-Django piface integration on Raspbian Jessie
+Django PiFace integration on Raspbian Jessie
