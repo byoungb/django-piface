@@ -1,0 +1,62 @@
+---
+- name: setup raspberrypi
+  hosts: raspberrypi
+  become: true
+  tasks:
+    - name: enable spi
+      lineinfile:
+        dest: /boot/config.txt
+        regexp: '^#?dtparam=spi=on'
+        line: 'dtparam=spi=on'
+      notify: reboot
+    - name: install packages
+      apt:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - uwsgi-plugin-python
+        - python3-virtualenv
+        - python3-pip
+        - uwsgi
+        - git
+    - name: add groups to user
+      user:
+        groups: spi,gpio
+        name: www-data
+        append: yes
+    - name: create www folder
+      file:
+        state: directory
+        owner: www-data
+        group: www-data
+        dest: /var/www
+    - name: clone repo
+      git:
+        repo: https://github.com/byoungb/django-piface.git
+        dest: /var/www
+      become_user: www-data
+      notify: restart uwsgi
+    - name: create virtualenv
+      pip:
+        requirements: /var/www/requirements.txt
+        virtualenv_python: python3
+        virtualenv: /var/www
+    - name: run uwsgi
+      service:
+        state: started
+        enabled: yes
+        name: uwsgi
+  handlers:
+    - name: reboot
+      command: reboot
+      async: 1
+      poll: 0
+      ignore_errors: true
+      notify: wait for boot
+    - name: wait for boot
+      local_action: wait_for host={{ inventory_hostname }} port=22 state=started delay=30 timeout=300
+      become: false
+    - name: restart uwsgi
+      service:
+        state: restarted
+        name: uwsgi
